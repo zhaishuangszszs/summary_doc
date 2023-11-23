@@ -1,0 +1,12 @@
+SELECT VERSION();检查 MySQL 版本
+
+SHOW VARIABLES LIKE 'validate_password%';查看密码策略配置选项
+set global validate_password.policy=LOW;修改密码策略配置选项
+
+
+MySQL 数据库带有一个客户端实用程序，允许你从 Linux 终端访问数据库并与之交互。
+通常，在未执行任何配置的情况下在 Ubuntu 上全新安装 MySQL 后，访问服务器的用户将使用身份验证套接字 (auth_socket) 插件进行身份验证。
+auth_socket 的使用会阻碍服务器使用密码对用户进行身份验证。它不仅会引发安全问题，而且还会使用户无法使用外部程序（如 phpMyAdmin）访问数据库。我们需要将身份验证方法从 auth_socket 更改为使用 mysql_native_password。
+
+从上图中，我们可以确认 root 用户确实使用 auth_socket 插件进行了身份验证。我们需要使用下面的“ALTER USER”命令切换到“密码验证”的使用。
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'your_password';

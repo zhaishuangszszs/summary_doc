@@ -1,0 +1,171 @@
+alloca，priority_queue，functional，c++五法则
+静态库，动态库，预编译头文件，
+
+
+明天目标：c++多线程入门
+
+
+
+88-87，82，77-80，73，71，63，
+
+声明：只是规定了变量的类型和名字，而没有进行内存分配。
+定义：不仅规定了变量的类型和名字，而且进行了内存分配，也可能会对量进行初始化。
+
+当变量为自定义类类型：调用自身的默认构造函数进行初始化。
+当变量为内置类型时：
+该变量定义在函数体外时，将被初始化为0。
+该变量定义在函数体内时，将不会进行初始化。
+
+
+
+多返回值：
+tumple,pair，tie，struct
+可以用来处理多返回值，结构化绑定c++17更方便
+auto[var1,var2...]=func(),func返回值为pair,或者tuple。
+
+类型转换：
+dynamic_cast 主要用来将基类（至少有一个虚函数static_cast不需要但不安全，这样有虚函数表）转换为子类。（起到检验类型的作用）。
+子类转换为基类往往隐式转换就可以。
+
+
+
+左值右值：
+左值引用只接受左值
+右值引用只接受右值
+左值是有储存支持的变量，右值是临时变量。
+const int& 常量左值引用可以接受左值和右值。
+移动构造函数在创建对象时调用，移动赋值在移动对象使用。
+std::move(exper);基本可以说和移动构造函数配对使用。
+
+
+const:（类一般要重载const函数,因为声明的const A a;a只能调用const修饰的函数）
+const对象只能调用const成员函数、不能调用非const成员函数。（因为类型不匹配）
+	引申要为每个函数重载const函数，因为对非const对象b,const&a=b,a无法调用b之前可以用的函数。
+非const对象可以调用const成员函数。（const成员已经限定了无法修改，可以访问）
+
+
+
+类的学习：
+
+常量、变量、静态常量（注意区分静态变量）---可以在类内初始化
+静态变量 ---不可以在类内初始化，必须类外初始化
+
+构造函数析构函数不能被继承（区分继承构造函数）。
+
+初始化列表：
+声明类的实例时，编译器会基于重载决策选择要调用的构造函数
+构造函数可以选择具有成员初始化表达式列表，该列表会在构造函数主体运行之前初始化类成员。
+首选成员初始化表达式列表，而不是在构造函数主体中赋值。 成员初始化表达式列表直接初始化成员。c++用类对象传参不使用初始化列表会调用两次构造函数。
+如果没有使用初始化列表，在进入构造函数时，成员变量已经默认初始化了。构造函数里对成员变量的操作属于赋值，而不是初始化。所以初始化顺序依旧是定义成员变量的顺序。
+const 成员和引用类型的成员，如果用构造函数初始化，必须在成员初始化表达式列表中进行初始化。
+C++ 类中成员变量初始化顺序成员变量在使用初始化列表初始化时，与构造函数中初始化成员列表的顺序无关，只与定义成员变量的顺序有关。
+
+
+子类定义父类同名函数
+子类中的函数将隐藏父类的同名函数
+子类无法重载父类中的成员变量
+
+（类一般要重载const函数,因为声明的const A a;a只能调用const修饰的函数）
+
+类的静态成员变量类内声明类外初始化。静态成员函数只能访问静态成员变量。类A内声明：static int a;	类外初始化：int A::a=10;	静态变量可以由类名和类的对象来访问。非static成员函数可访问static态成员函数/成员。
+
+非static成员函数隐含有this指针，谁调函数，this指向该对象。而静态函数没有该指针因此无法调用非静态成员，因为无法确定哪一个对象的。
+static成员函数通过访问类对象间接访问非static成员函数/成员。（即传入this指针）
+
+使用 explicit 关键字以防止出现隐式类型转换。
+
+类的普通函数是共享一块代码区，在调用成员函数时，编译器会根据类的类型找类函数。所以假设B继承A，A *ptr=new B; A->func();只能调用A类中的函数。
+
+
+多态原理，继承时虚函数表指针是深拷贝。重写虚函数，是重写子类的虚函数表地址并指向重写的函数。假设B继承A，A *ptr=new B; A->virtual func();时要找虚函数表指针，而指向的实例为B，即拿到的是B的虚函数表指针，所以调用的是B重写的虚函数。
+
+
+public:类内类外都可访问。 protected:private: 类内可以访问，类外不能访问。
+继承无法访问父类私有成员。
+public继承不改变继承属性。 protected继承父类public变为protected。private继承父类public,protected变为private。
+
+
+继承中构造和析构的顺序：  构造先基类再派生类，析构先派生类再基类。
+
+
+虚析构，纯虚析构：多态情况下，父类指针无法调用子类虚构函数。子类如果有开辟堆区内存会导致内存泄漏，使用虚析构来解决该问题。纯虚析构需要相应的实现不能virtual ~A()=0;
+
+
+
+
+delete的坑：
+
+delete[]来释放内存，它会自动调用每个对象的析构函数。（如果存在这就很容易导致重复释放问题）。
+可以用::operator new (sizeof(T) * size_t)，    ::operator delete( void *, size_t );解决。
+即分配未初始化的内存，删除这些内存，不会调用对象的析构函数。
+但同样有问题，对于std::string未初始化访问对象会带来问题。对象的成员变量将处于未定义的状态。当你尝试访问这些成员变量时，可能会发生不可预测的行为，如崩溃、数据损坏或其他意外结果。
+例如std::string，分配小string会在栈分配，大的在堆分配，这些行为未定义容易出问题，需要初始化内存。
+
+
+智能指针：
+智能指针是你在栈上声明的类模板，并可通过使用指向某个堆分配的对象的原始指针进行初始化。 在初始化智能指针后，它将拥有原始的指针。 这意味着智能指针负责删除原始指针指定的内存。 智能指针析构函数包括要删除的调用，并且由于在栈上声明了智能指针，当智能指针超出范围时将调用其析构函数。
+
+
+
+
+
+
+模板学习：
+
+与其他语言（如 C# 和 Java）中的泛型类型不同，C++ 模板支持非类型参数，也称为值参数。
+template<typename T, size_t L> size_t 值在编译时作为模板参数传入，必须是 const 或 constexpr 表达式。 
+例如：
+MyArray<MyClass*, 10> arr; 
+const a=10;  MyArray<MyClass*, a> arr;
+
+
+编译器遇到函数模板，它会生成一个新函数。相当于让编译器实现函数。
+可以使用省略号运算符 (...) 定义采用任意数量的零个或多个类型参数的模板。
+
+没有任何固有要求规定任何特定模板的类型参数都属于同一个对象层次结构。
+例如：Base是基类，Derived是派生类
+vector<Base*> vec;
+Base a; Derived b;
+vec.push_back(&a);vector.push_back(&b);
+
+模板可以是模板参数。
+例如：
+template<typename T, template<typename, int> class Arr>
+class MyClass2
+{
+    T t; //OK
+    Arr<T, 10> a;//OK
+    U u; //Error. U not in scope
+};
+
+默认模板自变量，和模板分配器需要学习。	（暂略）
+成员函数可以是函数模板，并指定额外参数。	（暂略）
+嵌套类模板。模板在类或类模板中定义	。	（暂略）
+模板友元。				（暂略）
+模板实例化。				（暂略）
+模板专用化（特殊化）。			（暂略）
+模板参数可以在模板参数列表中重复使用。
+例如：
+template<class T, T* pT> class X1
+
+可变参数模板：
+https://blog.csdn.net/qq_38410730/article/details/105247065
+https://blog.csdn.net/qq_52399817/article/details/130223147?spm=1001.2101.3001.6661.1&utm_medium=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-1-130223147-blog-105247065.235%5Ev38%5Epc_relevant_sort&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-1-130223147-blog-105247065.235%5Ev38%5Epc_relevant_sort&utm_relevant_index=1
+
+模板别名：
+https://blog.csdn.net/weixin_44980842/article/details/121612450?spm=1001.2101.3001.6650.1&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-1-121612450-blog-105474999.235%5Ev38%5Epc_relevant_sort&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-1-121612450-blog-105474999.235%5Ev38%5Epc_relevant_sort&utm_relevant_index=2
+using ValueType = typename vector::ValueType;在这个上下文中，vector是一个模板类，它的内部定义了一个类型ValueType。使用typename关键字是为了告诉编译器ValueType是一个类型而不是一个变量或静态成员。
+ typename 向编译器提供一个提示，指出未知标识符是一种类型。（将标识符作为类型占位符）
+
+
+
+
+
+
+
+重载运算符：
+<< :当重载该运算符时，假如在class A中重载，调用形式为 A.operator<<(cout);cout在<<左侧不符合要求。
+只能使用全局函数重载。ostream& operator<<(ostream& cout,class& A){cout<<A.member<<endl;},因为类外定义，要访问类的私有成员要声明为友元。
+
+仿函数：类重载了（）运算符就是仿函数，或者函数对象。
+

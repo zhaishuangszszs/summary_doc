@@ -1,0 +1,41 @@
+单词：20
+leetcode:1
+回去虚拟机装下c++arrow
+
+
+
+
+
+
+
+
+
+docker run --net zs_test --rm -ti \
+    -v $(pwd)/lakesoul.properties:/opt/spark/work-dir/lakesoul.properties \
+    --env lakesoul_home=/opt/spark/work-dir/lakesoul.properties bitnami/spark:3.3.1 \
+    spark-shell \
+    --packages com.dmetasoul:lakesoul-spark:2.4.1-spark-3.3 \
+    --conf spark.sql.extensions=com.dmetasoul.lakesoul.sql.LakeSoulSparkSessionExtension \
+    --conf spark.sql.catalog.lakesoul=org.apache.spark.sql.lakesoul.catalog.LakeSoulCatalog \
+    --conf spark.sql.defaultCatalog=lakesoul \
+    --conf spark.hadoop.fs.s3.impl=org.apache.hadoop.fs.s3a.S3AFileSystem \
+    --conf spark.hadoop.fs.s3a.buffer.dir=/opt/spark/work-dir/s3a \
+    --conf spark.hadoop.fs.s3a.path.style.access=true \
+    --conf spark.hadoop.fs.s3a.endpoint=http://minio:9000 \
+    --conf spark.hadoop.fs.s3a.aws.credentials.provider=org.apache.hadoop.fs.s3a.AnonymousAWSCredentialsProvider
+
+
+
+docker run --net zs_test --rm -ti \
+    -v $(pwd)/lakesoul.properties:/opt/spark/work-dir/lakesoul.properties \
+    --env lakesoul_home=/opt/spark/work-dir/lakesoul.properties bitnami/spark:3.3.1 \
+    spark-shell \
+    --jars /home/zhaishuang/spark-3.3.2-bin-hadoop3/jars/spark-3.3.2-bin-hadoop3 \
+    --conf spark.sql.extensions=com.dmetasoul.lakesoul.sql.LakeSoulSparkSessionExtension \
+    --conf spark.sql.catalog.lakesoul=org.apache.spark.sql.lakesoul.catalog.LakeSoulCatalog \
+    --conf spark.sql.defaultCatalog=lakesoul \
+    --conf spark.hadoop.fs.s3.impl=org.apache.hadoop.fs.s3a.S3AFileSystem \
+    --conf spark.hadoop.fs.s3a.buffer.dir=/opt/spark/work-dir/s3a \
+    --conf spark.hadoop.fs.s3a.path.style.access=true \
+    --conf spark.hadoop.fs.s3a.endpoint=http://minio:9000 \
+    --conf spark.hadoop.fs.s3a.aws.credentials.provider=org.apache.hadoop.fs.s3a.AnonymousAWSCredentialsProvider

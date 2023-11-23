@@ -1,0 +1,27 @@
+//多个机器同步文件的shell
+#!/bin/bash
+#1.judge argument number
+if [ $# -lt 1 ]
+then
+    echo Not Enough Argument!
+    exit;
+fi 
+#2.
+for host in hadoop102 hadoop103 hadoop104
+do 
+    echo =======================$host=======================
+    for file in $@
+    do
+        echo $file
+        #判断文件是否存在
+        if [ -e $file ]
+        then
+            pdir=$(cd -P $(dirname $file); pwd)
+            fname=$(basename $file)
+            ssh $host "mkdir -p $pdir"
+            rsync -av $pdir/$fname $host:$pdir
+        else
+            echo $file dose not exists!
+        fi
+    done
+done

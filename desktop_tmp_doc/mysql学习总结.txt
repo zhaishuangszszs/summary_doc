@@ -1,0 +1,3 @@
+当 limit和offset组合使用的时候，limit后面只能有一个参数，表示要取的的数量,offset表示要跳过的数量 。
+
+table1 as a inner join table2 as b [as c]不对，不能对连接表取别名

@@ -1,0 +1,9 @@
+sudo /etc/init.d/mysql start
+sudo mysql
+
+
+
+管理员身份运行cmd  
+net start mysql
+mysql -u root -p
+（本机密码sha）

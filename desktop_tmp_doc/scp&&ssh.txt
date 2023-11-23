@@ -1,0 +1,11 @@
+scp -r D:\研究生学习\研一\csapp\lab\第四次实验.rar zs@192.168.160.134:/home/zs/csapp/lab
+wget从网上链接下载内容
+
+ssh -i ~/.ssh/zhaishuang_rsa -l zhaishuang 122.9.131.129
+登录命令：-i 指定密钥文件路径 -l 指定用户名
+
+生成密匙
+ssh-keygen -t rsa
+
+复制公钥到目的IP主机
+ssh-copy-id IPADDR 

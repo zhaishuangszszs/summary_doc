@@ -1,0 +1,71 @@
+先学spark，flink这俩框架，再学组件，组件的先后顺序：kafka、zk、flume、hbase，最后学数仓建模、OLAP框架（doris、ck）、数据湖（hudi、iceberg）。学这些的前提是已经会了linux、java、scala、hadoop、hive、mysql（这个也是学习顺序）
+
+
+
+
+
+
+//环境变量配置shell
+
+# /etc/profile: system-wide .profile file for the Bourne shell (sh(1))
+# and Bourne compatible shells (bash(1), ksh(1), ash(1), ...).
+
+if [ "${PS1-}" ]; then
+  if [ "${BASH-}" ] && [ "$BASH" != "/bin/sh" ]; then
+    # The file bash.bashrc already sets the default PS1.
+    # PS1='\h:\w\$ '
+    if [ -f /etc/bash.bashrc ]; then
+      . /etc/bash.bashrc
+    fi
+  else
+    if [ "$(id -u)" -eq 0 ]; then
+      PS1='# '
+    else
+      PS1='$ '
+    fi
+  fi
+fi
+
+if [ -d /etc/profile.d ]; then
+  for i in /etc/profile.d/*.sh; do
+    if [ -r $i ]; then
+      . $i
+    fi
+  done
+  unset i
+fi
+
+
+
+
+
+
+
+以下是一些与 Spark 和 RDD（弹性分布式数据集）相关的论文，它们涵盖了 Spark 和 RDD 的核心概念、架构、优化技术等方面的研究：
+
+Resilient Distributed Datasets: A Fault-Tolerant Abstraction for In-Memory Cluster Computing（原始 Spark 论文）
+
+作者：Matei Zaharia 等
+概要：这是 Spark 最初的论文，介绍了 RDD 这一核心概念，以及 Spark 的设计和实现。它强调了 RDD 的容错性和内存计算能力，以及 Spark 在大规模数据处理中的性能表现。
+发表日期：2012年
+Spark: Cluster Computing with Working Sets
+
+作者：Matei Zaharia 等
+概要：这篇论文进一步深入介绍了 Spark 的内部架构和执行模型，包括 Spark 的调度、内存管理和缓存机制。它讨论了 Spark 在处理迭代算法和交互式查询时的优势。
+发表日期：2010年
+Tachyon: Reliable, Memory Speed Storage for Cluster Computing Frameworks
+
+作者：Haoyuan Li 等
+概要：这篇论文介绍了 Tachyon，它是 Spark 的内存文件系统，用于提供可靠的、内存速度的存储。Tachyon 允许 Spark 和其他分布式计算框架在内存中共享数据，从而提高了性能。
+发表日期：2014年
+Efficient Query Execution in Spark using a Shared-Memory Abstraction
+
+作者：Michael Armbrust 等
+概要：这篇论文探讨了如何在 Spark 中使用共享内存抽象来实现高效的查询执行。它介绍了 Spark SQL 的优化技术和执行计划生成。
+发表日期：2015年
+SparkR: Scaling R Programs with Spark
+
+作者：Shivaram Venkataraman 等
+概要：这篇论文介绍了 SparkR，它是 Spark 的 R 语言接口，允许在 Spark 上扩展 R 语言程序。它描述了 SparkR 的设计和性能评估。
+发表日期：2016年
+这些论文提供了深入了解 Spark 和 RDD 的基础知识，以及与 Spark 相关的一些扩展和优化技术。如果您对 Spark 的研究或应用感兴趣，可以进一步阅读这些论文以获取更多详细信息。请注意，研究领域不断发展，还可能有其他相关论文值得参考

@@ -1,0 +1,11 @@
+idea:
+ctrl+p(查看函数参数类型)
+ctrl+alt+L(格式化代码)
+
+vscode:
+ctrl-shift +p （删除某行）
+shift-alt +箭头 （复制当前行）
+alt +鼠标左键 （选择不同区域文本）
+空选状态写ctrl+c就是复制当前行
+windows:
+ctrl +鼠标左键 （选择不同文件）

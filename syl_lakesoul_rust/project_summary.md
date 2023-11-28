@@ -199,3 +199,90 @@ edition = "2021"
 lakesoul-io = { path = "../lakesoul-io" }
 lakesoul-metadata = { path = "../lakesoul-metadata" }
 ```
+
+
+
+### 项目用到的库函数
+#### 库函数
+`let dir = env::temp_dir();`
+linux下是`/tmp`
+
+`env::var("lakesoul_home")`是否设置lakesoul_home环境变量，返回`Result<String, VarError>`
+
+`unwrap_or_else` ok时返回ok中内容
+else调用`FnOnce()`
+
+`filter`根据条件返回一个迭代器
+
+`map`每个元素操作产生一个新迭代器
+
+`fliter_map`就是减少冗余，确保过滤的val不是None
+
+`.ok()` Converts from Result<T, E> to Option<T>。 
+```
+OK(val)=>Some(val)
+Err(val)=>None
+```
+
+`.or_else`
+Returns the option if it contains a value, otherwise calls f：FnOnce and returns the result.
+
+`std::fmt`中查找
+```
+format!("| {:<10}|", num_rows)
+```
+
+#### extern crate
+`tokio_postgres`
+`Serde`Serde是一个框架，用于高效、通用地序列化和反序列化Rust数据结构。如json,ymal,csv
+[look here](https://serde.rs/)
+
+#### trait
+* `Debug`
+进行输出调试
+* `Clone`
+深克隆
+* `Default`
+```
+impl Default for IOSchema {
+    fn default() -> Self {
+        IOSchema(Arc::new(Schema::empty()))
+    }
+}
+```
+返回默认值
+* From
+```
+
+#[derive(Debug)]
+struct Number {
+    value: i32,
+}
+
+impl From<i32> for Number {
+    fn from(item: i32) -> Self {
+        Number { value: item }
+    }
+}
+
+let num = Number::from(30);
+```
+* Into
+Into trait 就是把 From trait 倒过来而已。也就是说，如果你为你的类型实现了 From，那么同时你也就免费获得了 Into。
+使用 Into trait 通常要求指明要转换到的类型。
+```
+let int = 5;
+// 试试删除类型说明
+let num: Number = int.into();
+```
+
+#### lakesoul_io_config
+`register_s3_object_store`
+使用aws for rust
+[查看here](https://docs.aws.amazon.com/sdk-for-rust/latest/dg/welcome.html)
+[or here](https://docs.aws.amazon.com/sdk-for-rust/latest/dg/welcome.html) 这个更友好
+[Amazon DynamoDB 的核心组件](https://docs.aws.amazon.com/zh_cn/amazondynamodb/latest/developerguide/HowItWorks.CoreComponents.html)
+#### NoSQL基础
+[here](https://aws.amazon.com/cn/nosql/)
+#### protocol Buffers
+[here](https://protobuf.dev/overview/) 一种结构化数据，`.proto`文件结尾。

@@ -1,3 +1,0 @@
-DWARF
-ELF
-CodeView/PDB

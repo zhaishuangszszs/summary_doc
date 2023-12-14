@@ -349,6 +349,8 @@ drop user 'test'@'localhost';
 
 授予权限：
 `GRANT 权限列表 ON 数据库名.表名 TO '用户名'@'主机名';`
+例：
+`grant all on *.* to 'root'@'%'`
 
 撤销权限：
 `REVOKE 权限列表 ON 数据库名.表名 FROM '用户名'@'主机名';`
@@ -931,58 +933,6 @@ Memory 引擎的表数据是存储在内存中的，受硬件问题、断电问�
 
 电商中的足迹和评论适合使用 MyISAM 引擎，缓存适合使用 Memory 引擎。
 
-## 性能分析
-
-### 查看执行频次
-
-查看当前数据库的 INSERT, UPDATE, DELETE, SELECT 访问频次：
-`SHOW GLOBAL STATUS LIKE 'Com_______';` 或者 `SHOW SESSION STATUS LIKE 'Com_______';`
-例：`show global status like 'Com_______'`
-
-### 慢查询日志
-
-慢查询日志记录了所有执行时间超过指定参数（long_query_time，单位：秒，默认10秒）的所有SQL语句的日志。
-MySQL的慢查询日志默认没有开启，需要在MySQL的配置文件（/etc/my.cnf）中配置如下信息：
-	# 开启慢查询日志开关
-	slow_query_log=1
-	# 设置慢查询日志的时间为2秒，SQL语句执行时间超过2秒，就会视为慢查询，记录慢查询日志
-	long_query_time=2
-更改后记得重启MySQL服务，日志文件位置：/var/lib/mysql/localhost-slow.log
-
-查看慢查询日志开关状态：
-`show variables like 'slow_query_log';`
-
-### profile
-
-show profile 能在做SQL优化时帮我们了解时间都耗费在哪里。通过 have_profiling 参数，能看到当前 MySQL 是否支持 profile 操作：
-`SELECT @@have_profiling;`
-profiling 默认关闭，可以通过set语句在session/global级别开启 profiling：
-`SET profiling = 1;`
-查看所有语句的耗时：
-`show profiles;`
-查看指定query_id的SQL语句各个阶段的耗时：
-`show profile for query query_id;`
-查看指定query_id的SQL语句CPU的使用情况
-`show profile cpu for query query_id;`
-
-### explain
-
-EXPLAIN 或者 DESC 命令获取 MySQL 如何执行 SELECT 语句的信息，包括在 SELECT 语句执行过程中表如何连接和连接的顺序。
-语法：
-	# 直接在select语句之前加上关键字 explain / desc
-	EXPLAIN SELECT 字段列表 FROM 表名 HWERE 条件;
-
-EXPLAIN 各字段含义：
-
-- id：select 查询的序列号，表示查询中执行 select 子句或者操作表的顺序（id相同，执行顺序从上到下；id不同，值越大越先执行）
-- select_type：表示 SELECT 的类型，常见取值有 SIMPLE（简单表，即不适用表连接或者子查询）、PRIMARY（主查询，即外层的查询）、UNION（UNION中的第二个或者后面的查询语句）、SUBQUERY（SELECT/WHERE之后包含了子查询）等
-- type：表示连接类型，性能由好到差的连接类型为 NULL、system、const、eq_ref、ref、range、index、all
-- possible_key：可能应用在这张表上的索引，一个或多个
-- Key：实际使用的索引，如果为 NULL，则没有使用索引
-- Key_len：表示索引中使用的字节数，该值为索引字段最大可能长度，并非实际使用长度，在不损失精确性的前提下，长度越短越好
-- rows：MySQL认为必须要执行的行数，在InnoDB引擎的表中，是一个估计值，可能并不总是准确的
-- filtered：表示返回结果的行数占需读取行数的百分比，filtered的值越大越好
-
 ## 索引
 
 索引是帮助 MySQL **高效获取数据**的**数据结构（有序）**。在数据之外，数据库系统还维护着满足特定查找算法的数据结构，这些数据结构以某种方式引用（指向）数据，这样就可以在这些数据结构上实现高级查询算法，这种数据结构就是索引。
@@ -1090,6 +1040,9 @@ MySQL 索引数据结构对经典的 B+Tree 进行了优化。在原 B+Tree 的�
 | 聚集索引(Clustered Index)  | 将数据存储与索引放一块，索引结构的叶子节点保存了行数据  | 必须有，而且只有一个  |
 | 二级索引(Secondary Index)  | 将数据与索引分开存储，索引结构的叶子节点关联的是对应的主键  | 可以存在多个  |
 
+
+* 一个select查二级索引查找主键值，在聚簇索(一般也是主键索引)引找对应的行（**回表查询**）
+
 演示图：
 
 ![大致原理](https://learning-logs-1253130399.cos.ap-guangzhou.myqcloud.com/editor/原理图_20220318194454880073.png "大致原理")
@@ -1150,20 +1103,73 @@ create index idx_user_email on tb_user(email);
 -- 删除索引
 drop index idx_user_email on tb_user;
 ```
+### 性能分析
+
+#### 查看执行频次
+
+查看当前数据库的 INSERT, UPDATE, DELETE, SELECT 访问频次：
+`SHOW GLOBAL STATUS LIKE 'Com_______';` 或者 `SHOW SESSION STATUS LIKE 'Com_______';`
+例：`show global status like 'Com_______'`
+
+#### 慢查询日志
+
+慢查询日志记录了所有执行时间超过指定参数（long_query_time，单位：秒，默认10秒）的所有SQL语句的日志。
+MySQL的慢查询日志默认没有开启，需要在MySQL的配置文件（/etc/my.cnf）中配置如下信息：
+	# 开启慢查询日志开关
+	`slow_query_log=1`
+	# 设置慢查询日志的时间为2秒，SQL语句执行时间超过2秒，就会视为慢查询，记录慢查询日志
+	`long_query_time=2`
+更改后记得重启MySQL服务，日志文件位置：`/var/lib/mysql/localhost-slow.log`
+
+查看慢查询日志开关状态：
+`show variables like 'slow_query_log';`
+
+#### profile
+
+show profile 能在做SQL优化时帮我们了解时间都耗费在哪里。通过 have_profiling 参数，能看到当前 MySQL 是否支持 profile 操作：
+`SELECT @@have_profiling;`
+profiling 默认关闭，可以通过set语句在session/global级别开启 profiling：
+`SET profiling = 1;`
+查看所有语句的耗时：
+`show profiles;`
+查看指定query_id的SQL语句各个阶段的耗时：
+`show profile for query query_id;`
+查看指定query_id的SQL语句CPU的使用情况
+`show profile cpu for query query_id;`
+
+#### explain
+
+EXPLAIN 或者 DESC 命令获取 MySQL 如何执行 SELECT 语句的信息，包括在 SELECT 语句执行过程中表如何连接和连接的顺序。
+语法：
+	# 直接在`select`语句之前加上关键字 `explain / desc`
+	`EXPLAIN SELECT 字段列表 FROM 表名 HWERE 条件;`
+
+EXPLAIN 各字段含义：
+
+- id：select 查询的序列号，表示查询中执行 select 子句或者操作表的顺序（id相同，执行顺序从上到下；id不同，值越大越先执行）
+- select_type：表示 SELECT 的类型，常见取值有 SIMPLE（简单表，即不适用表连接或者子查询）、PRIMARY（主查询，即外层的查询）、UNION（UNION中的第二个或者后面的查询语句）、SUBQUERY（SELECT/WHERE之后包含了子查询）等
+- type：表示连接类型，性能由好到差的连接类型为 NULL、system、const、eq_ref、ref、range、index、all
+- possible_key：可能应用在这张表上的索引，一个或多个
+- Key：实际使用的索引，如果为 NULL，则没有使用索引
+- Key_len：表示索引中使用的字节数，该值为索引字段最大可能长度，并非实际使用长度，在不损失精确性的前提下，长度越短越好
+- rows：MySQL认为必须要执行的行数，在InnoDB引擎的表中，是一个估计值，可能并不总是准确的
+- filtered：表示返回结果的行数占需读取行数的百分比，filtered的值越大越好
 
 ### 使用规则
 
 #### 最左前缀法则
+【顺序跟sql语句中出现顺序无关，服务层会优化】
 
 如果索引关联了多列（联合索引），要遵守最左前缀法则，最左前缀法则指的是查询从索引的最左列开始，并且不跳过索引中的列。
-如果跳跃某一列，索引将部分失效（后面的字段索引失效）。
+如果**跳跃某一列**，**索引将部分失效**（后面的字段索引失效）。
+新特性**索引跳跃扫描**可以不满足最左前缀法则
 
 联合索引中，出现范围查询（<, >），范围查询右侧的列索引失效。可以用>=或者<=来规避索引失效问题。
 
 #### 索引失效情况
 
 1. 在索引列上进行运算操作，索引将失效。如：`explain select * from tb_user where substring(phone, 10, 2) = '15';`
-2. 字符串类型字段使用时，不加引号，索引将失效。如：`explain select * from tb_user where phone = 17799990015;`，此处phone的值没有加引号
+2. 字符串类型字段使用时，不加引号，索引将失效。如：`explain select * from tb_user where phone = 17799990015;`，此处phone的值没有加引号【**原因实际和1相同，调用了类型转换函数对索引进行了处理**】
 3. 模糊查询中，如果仅仅是尾部模糊匹配，索引不会是失效；如果是头部模糊匹配，索引失效。如：`explain select * from tb_user where profession like '%工程';`，前后都有 % 也会失效。
 4. 用 or 分割开的条件，如果 or 其中一个条件的列没有索引，那么涉及的索引都不会被用到。
 5. 如果 MySQL 评估使用索引比全表更慢，则不使用索引。

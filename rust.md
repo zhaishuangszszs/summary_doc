@@ -204,6 +204,8 @@ enum List {
 
 ## 遇到的坑
 
+* **零成本抽象**：一段代码抽象出一个抽象的框架，之后实现这个框架适应不同情况，但没有增加额外的成本就叫零成本抽象。
+
 ### **1.数据不可变变为可变**
 * 当所有权转移时，数据的可变性可能发生改变。[一般定义变量默认不可变，但转移所有权时可以重新变为可变变量。]
 ```
@@ -272,3 +274,37 @@ let my_string = String::from("Rust");
 let my_box = Box::new(my_string);
 let my_ref: &str = &my_box; // 链式解引用
 ```
+
+### 8 lib.rs和main.rs关系
+* 没有mian.rs说明是一个**库package**,crate指的就是**lib.rs**。
+两个同时存在，说明同时存在两个crate相互独立，同时编译。`mian.rs`中的**crate**指的就是`main.rs`**自己**binary crate。`lib.rs`中指的就是`lib.rs`**自己**library crate。
+* main.rs想**使用lib.rs中定义的结构**需要`use package（名字）::<lib.rs中的结构>`，**但是main.rs不是lib.rs的子模块因此，lib.rs模块是pub时才能用**。
+* 想要mian.rs**使用lib.rs中的结构**，Cargo.tml中加入lib。同样只能引用pub模块
+```
+[lib]
+name="项目名"//注意不能有连字符等
+```
+### 9 closure
+* 尝试调用一个被推断为两个不同类型的闭包出错
+* 函数指针实现了所有三个闭包 trait（Fn、FnMut 和 FnOnce），所以总是可以在调用期望闭包的函数时传递函数指针作为参数。
+* 不同于闭包，fn 是一个类型而不是一个 trait
+* 闭包表现为 trait，这意味着不能直接返回闭包。对于大部分需要返回 trait 的情况，可以使用实现了期望返回的 trait 的具体类型来替代函数的返回值。但是这不能用于闭包，因为它们没有一个可返回的具体类型；例如不允许使用函数指针 fn 作为返回值类型。
+可以使用 trait 对象解决。
+```
+fn returns_closure() -> Box<dyn Fn(i32) -> i32> {
+    Box::new(|x| x + 1)
+}
+```
+### 10. From&Into
+[From&Into](https://rustwiki.org/zh-CN/rust-by-example/conversion/from_into.html)
+
+### 11 Mutex
+* Mutex 结构体没有公有 unlock 方法，因为锁的所有权依赖 lock 方法返回的 LockResult<MutexGuard<T>> 中 MutexGuard<T> 的生命周期。
+
+### 12 mpsv
+* 标准库提供了通道std::sync::mpsc，其中mpsc是multiple producer, single consumer的缩写，代表了该通道**支持多个发送者**，但是**只支持唯一的接收者**。
+* `mpsc::channel`创建的通道是**异步通道**。
+* `mpsc::sync_channel(0)`同步通道发送消息是阻塞的，只有在消息被接收后才解除阻塞
+* **同步通道缓存变多**也**和异步通道效果相同**
+* **所有发送者被drop**或者**所有接收者被drop**后，通道会自动关闭。
+* 事实上**异步通道的缓冲上限**取决于你的**内存大小**，不要撑爆就行。

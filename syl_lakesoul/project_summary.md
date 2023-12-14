@@ -216,7 +216,7 @@ else调用`FnOnce()`
 
 `map`每个元素操作产生一个新迭代器
 
-`fliter_map`就是减少冗余，确保过滤的val不是None
+`fliter_map`就是减少冗余，确保val不是None
 
 `.ok()` Converts from Result<T, E> to Option<T>。 
 ```

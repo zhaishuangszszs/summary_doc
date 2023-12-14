@@ -11,11 +11,19 @@
 [here](http://jartto.wang/2018/12/11/git-rebase/)
 `git rebase -i HEAD~n`合并最近n次提交
 
+* `git stash`
+
+* `git pull` 
+`git pull <远程主机名> <远程分支名>`
+`git pull <远程主机名> <远程分支名>:<本地分支名>`是**错误的，不能指定本地分支名字**
+
+* `git merge`时显示`Please enter a commit message to explain why this merge is necessary, especially if it merges an upd`要`CTRL + []`执行命令
+
 
 
 ### doc
 git log				(空格向下翻页，b向上翻页)。
-git reset --hard HEAD~n		(n回退版本数）
+git reset --hard HEAD~n		（n回退版本数）
 git restore <file>		以下命令可以将指定文件 <file> 恢复到最新的提交状态，丢弃所有未提交的更改
 
 
@@ -37,8 +45,22 @@ git reset --hard  fa4bf08fed85fc0ca5acde22464e68c6f8cfc8f2
 git push <远程主机名> <本地分支名>:<远程分支名>
 
 
-git pull <远程主机名> <远程分支名>:<本地分支名>
-
 //创建临时分支
-git fetch <远程主机名> <远程分支名>:<本地分支名>
+git pull <远程主机名> <远程分支名>:<本地分支名>
 //不创建临时分支，只获取更新
+git fetch <远程主机名> <远程分支名>:<本地分支名>
+
+
+## 错误提示
+* `'main/' does not have a commit checked out`
+一般是子目录下有`.git`文件，子目录需要`add&commit`
+
+
+## git 提交流程
+* `git checkout main`
+* `git pull upstream main`
+* `git push lakesoul_zs main`
+* `git checkout zs`
+* `git merge main`
+* `git commit -s -m "update"`
+* `git push lakesoul_zs zs`

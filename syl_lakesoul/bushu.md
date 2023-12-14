@@ -33,7 +33,7 @@
 > Rust 的测试通常是在一个单独的二进制文件中运行的，该文件位于 target/debug/ 目录下，其名称通常与测试模块或文件的名称相关。确保在运行调试器时使用正确的二进制文件名。
 
 运行`cargo +nightly test --package lakesoul-datafusion -- --nocapture`
-![结果](./picture/rust_picture/rust_debug_1.png)
+![结果](../picture/rust_picture/rust_debug_1.png)
 
 ` Running unittests src/lib.rs (target/debug/deps/lakesoul_datafusion-2089a0f7751f0a7e)`
 由此可知二进制文件位置。
